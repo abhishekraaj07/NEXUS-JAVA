@@ -1,0 +1,9 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: nexus-backend
+nexus:
+  relay:
+    max-participants: 2
+    inactivity-timeout-ms: 900000

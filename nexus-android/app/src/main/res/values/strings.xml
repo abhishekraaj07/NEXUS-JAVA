@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NEXUS</string>
+    <string name="tagline">Private Temporary Real-Time Communication</string>
+    <string name="create_room">CREATE PRIVATE ROOM</string>
+    <string name="join_room">JOIN ROOM</string>
+    <string name="enter_code">Enter 6-character room code</string>
+    <string name="secure_e2ee">SECURE E2EE</string>
+    <string name="leave_room">Leave Room</string>
+    <string name="send">Send</string>
+</resources>

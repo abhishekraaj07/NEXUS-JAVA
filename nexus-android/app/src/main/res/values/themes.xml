@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.NexusChat" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/nexus_cyan</item>
+        <item name="android:windowBackground">@color/nexus_bg</item>
+        <item name="android:textColorPrimary">@color/nexus_text_main</item>
+        <item name="android:statusBarColor">@color/nexus_bg</item>
+        <item name="android:navigationBarColor">@color/nexus_bg</item>
+    </style>
+</resources>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/nexus_bg"
+    android:orientation="vertical">
+
+    <!-- Top Header Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/nexus_surface"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_nexus_shield" />
+
+        <TextView
+            android:id="@+id/tv_room_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ROOM: ------"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/nexus_cyan"
+            android:layout_marginStart="12dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btn_fingerprint"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="@string/secure_e2ee"
+            android:textSize="10sp"
+            android:textColor="@color/nexus_cyan"
+            android:backgroundTint="@color/nexus_card"
+            android:paddingHorizontal="10dp" />
+
+        <Button
+            android:id="@+id/btn_leave"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="LEAVE"
+            android:textSize="10sp"
+            android:textColor="@color/nexus_red"
+            android:backgroundTint="@color/nexus_card"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <!-- Message RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_messages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="12dp"
+        android:clipToPadding="false" />
+
+    <!-- Input Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/nexus_surface"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/et_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Type an encrypted message..."
+            android:textColorHint="@color/nexus_text_dim"
+            android:textColor="@color/nexus_text_main"
+            android:background="@color/nexus_card"
+            android:padding="12dp"
+            android:maxLines="4" />
+
+        <Button
+            android:id="@+id/btn_send"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="@string/send"
+            android:textSize="13sp"
+            android:textColor="@color/nexus_bg"
+            android:backgroundTint="@color/nexus_cyan"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+</LinearLayout>
