@@ -102,12 +102,7 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
         String fp = crypto.getSessionFingerprint() != null ? crypto.getSessionFingerprint() : "NOT CONNECTED";
         new AlertDialog.Builder(this)
                 .setTitle("Security Fingerprint")
-                .setMessage("Compare this fingerprint with your peer through a trusted channel:
-
-" + fp +
-                        "
-
-Both participants must see the exact same fingerprint.")
+                .setMessage("Compare this fingerprint with your peer through a trusted channel:\n\n" + fp + "\n\nBoth participants must see the exact same fingerprint.")
                 .setPositiveButton("VERIFY", null)
                 .show();
     }

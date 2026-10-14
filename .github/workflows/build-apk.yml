@@ -1,0 +1,68 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Package APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Make Gradlew Executable
+        run: chmod +x ./nexus-android/gradlew
+
+      - name: Build Debug APK
+        working-directory: ./nexus-android
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Rename APK
+        run: |
+          mkdir -p release-artifacts
+          cp ./nexus-android/app/build/outputs/apk/debug/app-debug.apk release-artifacts/NEXUS-Chat-v1.0.0.apk
+
+      - name: Upload APK to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEXUS-Chat-v1.0.0-apk
+          path: release-artifacts/NEXUS-Chat-v1.0.0.apk
+          retention-days: 30
+
+      - name: Publish GitHub Release with APK
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-apk
+          name: "NEXUS Android App v1.0.0"
+          body: |
+            ### 📱 NEXUS Native Android App (Java)
+            
+            End-to-End Encrypted Private Ephemeral Chat Client.
+            
+            - **Backend URL**: `https://nexus-backend-filg.onrender.com`
+            - **Protocol**: ECDH P-256 + HKDF-SHA256 + AES-256-GCM
+            - **Compatibility**: Android 8.0+ (API 26+)
+            
+            #### 📥 Download
+            Download `NEXUS-Chat-v1.0.0.apk` below and install on your Android device.
+          files: release-artifacts/NEXUS-Chat-v1.0.0.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

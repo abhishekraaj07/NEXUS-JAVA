@@ -21,9 +21,11 @@ public class NexusApiClient {
     }
 
     public void createRoom(RoomCallback callback) {
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create("{}", mediaType);
         Request request = new Request.Builder()
                 .url(baseUrl + "/api/rooms")
-                .post(RequestBody.create(new byte[0], null))
+                .post(body)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
