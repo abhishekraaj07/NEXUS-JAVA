@@ -57,7 +57,7 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
             return;
         }
 
-        String wsUrl = "wss://nexus-private-chat.abhishekraaj07.workers.dev/api/rooms/" + roomCode + "/ws";
+        String wsUrl = "wss://nexus-backend-filg.onrender.com/api/rooms/" + roomCode + "/ws";
         wsClient = new NexusWebSocketClient(wsUrl, this);
         wsClient.connect();
 

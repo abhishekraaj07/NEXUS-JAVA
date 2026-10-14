@@ -12,7 +12,7 @@ import com.nexus.chat.network.NexusApiClient;
 
 public class MainActivity extends AppCompatActivity {
     // Default relay endpoint
-    public static final String DEFAULT_SERVER = "https://nexus-private-chat.abhishekraaj07.workers.dev";
+    public static final String DEFAULT_SERVER = "https://nexus-backend-filg.onrender.com";
 
     private EditText etRoomCode;
     private NexusApiClient apiClient;
