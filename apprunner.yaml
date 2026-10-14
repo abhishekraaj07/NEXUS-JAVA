@@ -1,0 +1,10 @@
+version: 1.0
+runtime: corretto21
+build:
+  commands:
+    build:
+      - cd nexus-backend && mvn clean package -DskipTests
+run:
+  command: java -jar nexus-backend/target/nexus-backend-1.0.0.jar
+  network:
+    port: 8080

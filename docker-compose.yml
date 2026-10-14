@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  nexus-backend:
+    build:
+      context: ./nexus-backend
+      dockerfile: Dockerfile
+    container_name: nexus-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    restart: unless-stopped
