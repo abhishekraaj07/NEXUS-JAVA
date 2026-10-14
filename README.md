@@ -1,4 +1,6 @@
 # NEXUS Private Chat — Full Java Stack Edition
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/abhishekraaj07/NEXUS-JAVA)
+
 
 A complete, production-grade Java port of the NEXUS Private Chat ecosystem:
 1. **nexus-backend**: Spring Boot 3.3 (Java 21) Zero-Knowledge Ephemeral WebSocket Relay Server.
