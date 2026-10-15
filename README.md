@@ -31,14 +31,19 @@
 
 | Platform | Channel | Link | Notes |
 |---|---|---|---|
-| 📱 **Android Native App** | GitHub Releases | [📥 **Download APK (v1.0.0)**](https://github.com/abhishekraaj07/NEXUS-JAVA/releases/download/v1.0.0-apk/NEXUS-Chat-v1.0.0.apk) | Direct install, `FLAG_SECURE`, zero webview |
-| 🌐 **Live Java Web Client** | Spring Boot Relay | [🚀 **Open Java Web App**](https://nexus-backend-filg.onrender.com) | Instant access in browser, hosted by Java backend |
-| 💻 **Self-Hosted Web & Relay** | Local Java 21 | `http://localhost:8080/` | Run via `./gradlew bootRun` |
+| 📱 **Android Native App** | GitHub Releases | [📥 **Download APK (v1.0.0)**](https://github.com/abhishekraaj07/NEXUS-JAVA/releases/download/v1.0.0-apk/NEXUS-Chat-v1.0.0.apk) | Direct install, `FLAG_SECURE` screen privacy, zero webview |
+| 🌐 **Live Java Web Client** | Spring Boot Relay | [🚀 **Open Java Web App**](https://nexus-backend-filg.onrender.com) | Instant access in browser, hosted directly by Java backend |
+| 💻 **Self-Hosted Web & Relay** | Local Java 21 | `http://localhost:8080/` | Run locally via `./gradlew bootRun` |
+| 📊 **Relay Health Status** | Spring Boot API | [⚡ **Inspect Status**](https://nexus-backend-filg.onrender.com/status) | Real-time JSON & HTML health monitor |
 
-**NEXUS-JAVA** is an end-to-end cryptographic private messaging suite built on Java 21 and modern Web standards. It provides full protocol and security parity with zero persistent data retention:
+---
 
-1. **`nexus-backend`**: High-performance Spring Boot 3.3.4 ephemeral WebSocket relay server with an embedded, zero-dependency Cyber-Sleek Web Client.
-2. **`nexus-android`**: Pure Native Android Studio App in Java featuring Web Crypto parity (`ECDH NIST P-256` + `AES-256-GCM`), anti-screenshot enforcement (`FLAG_SECURE`), and native chat bubble rendering.
+## 📖 Detailed System Overview
+
+**NEXUS-JAVA** is an end-to-end cryptographic private messaging suite engineered purely in **Java 21** and modern Web standards. It provides full protocol, cryptographic, and security parity with zero persistent data retention:
+
+1. **`nexus-backend`**: High-performance Spring Boot 3.3.4 ephemeral WebSocket relay server with an embedded, zero-dependency Cyber-Sleek Web Client. Exactly **0 bytes disk/database storage**.
+2. **`nexus-android`**: Pure Native Android Studio App in Java featuring Web Crypto parity (`ECDH NIST P-256` + `AES-256-GCM`), anti-screenshot enforcement (`FLAG_SECURE`), and native chat bubble rendering via `RecyclerView`.
 3. **Cross-Platform Web Client**: Hosted at `/` directly by the Spring Boot server for any desktop (Windows, macOS, Linux) or mobile browser.
 
 ---
@@ -74,15 +79,32 @@
                                 └──────────────────────┘
 ```
 
-### Key Security Properties:
+### Detailed Security Properties:
 * **End-to-End Encryption (E2EE)**: Ephemeral ECDH Curve P-256 (`secp256r1`) agreement with HKDF-SHA-256 expansion (`NEXUS-E2EE-v1` domain context).
 * **Authenticated Cipher**: AES-256-GCM with fresh 96-bit cryptographically random IVs and Additional Authenticated Data (`AAD = roomCode:senderId:msgId`).
 * **Out-of-Band Fingerprint**: Deterministic Session Fingerprint (`XXXX-XXXX-XXXX`) derived from canonically sorted public keys to prevent Man-in-the-Middle (MITM) attacks.
-* **Ephemeral 1× Media**: View-once self-destructing image transmission.
+* **Ephemeral 1× Media**: View-once self-destructing image transmission (client-side ephemeral view).
 * **Disappearing Messages**: Automated client-side TTL purge (5s, 10s, 30s, 1m).
-* **Anti-Screenshot Shield**: `FLAG_SECURE` strictly enforced on Android to block screen captures and task switch previews.
+* **Anti-Screenshot Shield**: `FLAG_SECURE` strictly enforced on Android to block screen captures, screen recording, and task-switcher previews.
 * **Burn Room**: Instant panic button that purges all session keys, closes the WebSocket, and destroys the room state.
 * **Zero Storage**: Exactly 0 bytes stored in database or disk. All messages live purely in transient memory during transit.
+
+---
+
+## 🏆 Cross-Client Feature Comparison
+
+| Feature | Android Native Java App | Embedded Spring Boot Web Client |
+|---|:---:|:---:|
+| **E2EE Curve** | NIST P-256 (`secp256r1`) | NIST P-256 (`secp256r1`) |
+| **Cipher** | AES-256-GCM + 96-bit IV | AES-256-GCM + 96-bit IV |
+| **Key Derivation** | HKDF-SHA-256 | HKDF-SHA-256 |
+| **Room Code Length** | 6-Character Ephemeral | 6-Character Ephemeral |
+| **1× View-Once Photos** | Supported | Supported (Ephemeral Viewer) |
+| **Disappearing Messages** | Supported | Supported (5s, 10s, 30s, 1m) |
+| **Security Fingerprint** | `XXXX-XXXX-XXXX` Dialog | `XXXX-XXXX-XXXX` Modal |
+| **Anti-Screenshot Shield** | `FLAG_SECURE` (OS-Level) | Browser Sandbox |
+| **Relay Server URL** | Dynamic Input (Cloud / Local) | Dynamic Switcher / Relative |
+| **Max Room Capacity** | 2 Participants | 2 Participants |
 
 ---
 
@@ -91,15 +113,15 @@
 ```
 NEXUS-JAVA/
 ├── .github/workflows/
-│   ├── build-apk.yml            # Automated Android APK Build Workflow
+│   ├── build-apk.yml            # Automated Android APK Build & GitHub Release Workflow
 │   └── ci.yml                   # Spring Boot Java 21 CI Build & Test
-├── nexus-backend/               # Spring Boot 3.3.4 (Java 21) Relay
+├── nexus-backend/               # Spring Boot 3.3.4 (Java 21) Ephemeral Relay
 │   ├── build.gradle / pom.xml
-│   ├── Dockerfile               # Containerized deployment config
+│   ├── Dockerfile               # Production container image
 │   └── src/main/
 │       ├── java/com/nexus/backend/
-│       │   ├── config/          # WebSocket & HTTP CORS setup
-│       │   ├── controller/      # RoomController (/api/rooms), HomeController
+│       │   ├── config/          # WebSocket & HTTP CORS configuration
+│       │   ├── controller/      # RoomController (/api/rooms), HomeController (/status)
 │       │   ├── model/           # Room, Participant, ClientMessage, ServerMessage
 │       │   ├── service/         # RoomManager (15m expiry), RateLimiterService
 │       │   ├── util/            # RoomCodeGenerator, ValidationUtils
@@ -126,7 +148,7 @@ NEXUS-JAVA/
 
 ---
 
-## 🚀 Quickstart Guide
+## 🚀 Step-by-Step Quickstart Guide
 
 ### 1. Run Spring Boot Backend & Web Client
 
@@ -161,9 +183,9 @@ The compiled debug APK will be generated at:
 `nexus-android/app/build/outputs/apk/debug/app-debug.apk`
 
 #### Connecting Android App to Backend:
-1. **Android Emulator**: In the `RELAY SERVER URL` field on the app's start screen, use `http://10.0.2.2:8080`.
-2. **Physical Phone on Wi-Fi**: Enter your host machine's local IP (e.g. `http://192.168.1.50:8080`).
-3. **Live Server**: Enter your deployed domain (e.g. `https://your-domain.com`).
+1. **Live Cloud Backend**: Enter `https://nexus-backend-filg.onrender.com` (already set by default).
+2. **Android Emulator**: In the `RELAY SERVER URL` field, use `http://10.0.2.2:8080`.
+3. **Physical Phone on Wi-Fi**: Enter your host machine's local IP (e.g. `http://192.168.1.50:8080`).
 
 ---
 
@@ -186,6 +208,18 @@ Connect at: `ws://<host>/api/rooms/{roomCode}/ws` (or `wss://` over SSL)
 * **Ciphertext Message**: `{"type":"message", "roomCode":"...", "senderId":"...", "messageId":"...", "iv":"...", "ciphertext":"...", "timestamp":...}`
 * **Typing Indicator**: `{"type":"typing", "roomCode":"...", "senderId":"...", "isTyping":true}`
 * **Heartbeat**: Client sends `{"type":"ping"}`, server returns `{"type":"pong"}`.
+
+---
+
+## 🐳 Docker Deployment
+
+```bash
+# Build Docker image
+docker build -t nexus-backend ./nexus-backend
+
+# Run container
+docker run -d -p 8080:8080 --name nexus-relay nexus-backend
+```
 
 ---
 
