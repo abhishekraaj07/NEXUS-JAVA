@@ -11,7 +11,7 @@ import com.nexus.chat.R;
 import com.nexus.chat.network.NexusApiClient;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String DEFAULT_SERVER = "http://10.0.2.2:8080";
+    public static final String DEFAULT_SERVER = "https://nexus-backend-filg.onrender.com";
 
     private EditText etRoomCode;
     private EditText etServerUrl;

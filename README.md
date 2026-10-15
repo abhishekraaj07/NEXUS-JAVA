@@ -20,8 +20,8 @@
     <img src="https://img.shields.io/badge/Download%20Android%20App-v1.0.0%20APK-00C853?style=for-the-badge&logo=android&logoColor=white" alt="Download Android APK" />
   </a>
   &nbsp;&nbsp;
-  <a href="https://nexus-private-chat.abhishekraaj07.workers.dev" target="_blank">
-    <img src="https://img.shields.io/badge/Open%20Live%20Web%20Chat-Launch%20Web-6366F1?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Launch Web App" />
+  <a href="https://nexus-backend-filg.onrender.com" target="_blank">
+    <img src="https://img.shields.io/badge/Open%20Live%20Java%20Web%20Chat-Launch%20Web-6366F1?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Launch Web App" />
   </a>
 </p>
 
@@ -32,7 +32,7 @@
 | Platform | Channel | Link | Notes |
 |---|---|---|---|
 | 📱 **Android Native App** | GitHub Releases | [📥 **Download APK (v1.0.0)**](https://github.com/abhishekraaj07/NEXUS-JAVA/releases/download/v1.0.0-apk/NEXUS-Chat-v1.0.0.apk) | Direct install, `FLAG_SECURE`, zero webview |
-| 🌐 **Live Web Client** | Cloudflare Workers | [🚀 **Open Web App**](https://nexus-private-chat.abhishekraaj07.workers.dev) | Instant access in browser, zero install |
+| 🌐 **Live Java Web Client** | Spring Boot Relay | [🚀 **Open Java Web App**](https://nexus-backend-filg.onrender.com) | Instant access in browser, hosted by Java backend |
 | 💻 **Self-Hosted Web & Relay** | Local Java 21 | `http://localhost:8080/` | Run via `./gradlew bootRun` |
 
 **NEXUS-JAVA** is an end-to-end cryptographic private messaging suite built on Java 21 and modern Web standards. It provides full protocol and security parity with zero persistent data retention:
