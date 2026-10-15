@@ -49,18 +49,29 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.0-apk
-          name: "NEXUS Android App v1.0.0"
+          name: "NEXUS Private Chat v1.0.0 (Native Android & Web)"
           body: |
-            ### 📱 NEXUS Native Android App (Java)
-            
-            End-to-End Encrypted Private Ephemeral Chat Client.
-            
-            - **Backend URL**: `https://nexus-backend-filg.onrender.com`
-            - **Protocol**: ECDH P-256 + HKDF-SHA256 + AES-256-GCM
-            - **Compatibility**: Android 8.0+ (API 26+)
-            
-            #### 📥 Download
-            Download `NEXUS-Chat-v1.0.0.apk` below and install on your Android device.
+            ## 🛡️ NEXUS Private Chat — v1.0.0 Release
+
+            ### 🚀 Quick Access
+            * 🌐 **Live Web Chat (Instant Browser Access)**: [Launch Web App](https://nexus-private-chat.abhishekraaj07.workers.dev)
+            * 📱 **Native Android App (APK)**: Download `NEXUS-Chat-v1.0.0.apk` below
+            * 💻 **Self-Hosted Spring Boot Server**: Run locally on `http://localhost:8080/` via `./gradlew bootRun`
+
+            ---
+
+            ### ⚡ What's New & Security Features:
+            - **Native Android Chat UI**: Full RecyclerView message bubble rendering with sender/receiver styles and delivery checkmarks.
+            - **End-to-End Encryption (E2EE)**: ECDH NIST P-256 + HKDF-SHA256 + AES-256-GCM authenticated cipher with 96-bit random IV & AAD.
+            - **Anti-Screenshot Protection**: Android `FLAG_SECURE` blocks screenshots, screen recording, and app switcher sniffing.
+            - **1× Ephemeral View-Once Photos**: Self-destructing image sharing.
+            - **Disappearing Messages**: 5s, 10s, 30s, 1m auto-purge timers.
+            - **Out-of-band Fingerprint**: `XXXX-XXXX-XXXX` session verification.
+            - **Dynamic Server URL**: Connect to local dev server (`10.0.2.2:8080`), local Wi-Fi IP, or custom cloud relay.
+            - **Zero Storage Guarantee**: 0 bytes persisted to database or disk.
+
+            #### 📥 Download & Install:
+            Download **`NEXUS-Chat-v1.0.0.apk`** below and install on Android 8.0+ (API 26+).
           files: release-artifacts/NEXUS-Chat-v1.0.0.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
