@@ -21,7 +21,7 @@ public class SecurityHeadersFilter implements Filter {
             httpRes.setHeader("Cross-Origin-Opener-Policy", "same-origin");
             httpRes.setHeader("Cross-Origin-Resource-Policy", "same-origin");
             httpRes.setHeader("Content-Security-Policy",
-                    "default-src 'self'; connect-src 'self' https: http: ws: wss: blob:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
+                    "default-src 'self'; connect-src 'self' https: http: ws: wss: blob:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';");
             
             if (request instanceof HttpServletRequest httpReq) {
                 String origin = httpReq.getHeader("Origin");

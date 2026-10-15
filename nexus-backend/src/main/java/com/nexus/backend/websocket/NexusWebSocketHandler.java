@@ -48,7 +48,14 @@ public class NexusWebSocketHandler extends TextWebSocketHandler {
             return;
         }
 
-        ClientMessage msg = objectMapper.readValue(payload, ClientMessage.class);
+        ClientMessage msg;
+        try {
+            msg = objectMapper.readValue(payload, ClientMessage.class);
+        } catch (Exception e) {
+            send(session, ServerMessage.error("INVALID_PAYLOAD", "Malformed JSON payload: " + e.getMessage()));
+            return;
+        }
+
         if (msg.getType() == null) {
             send(session, ServerMessage.error("INVALID_PAYLOAD", "Type must be specified"));
             return;
@@ -183,8 +190,12 @@ public class NexusWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void send(WebSocketSession session, ServerMessage msg) throws IOException {
-        if (session.isOpen()) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(msg)));
+        if (session != null && session.isOpen()) {
+            synchronized (session) {
+                if (session.isOpen()) {
+                    session.sendMessage(new TextMessage(objectMapper.writeValueAsString(msg)));
+                }
+            }
         }
     }
 
@@ -192,7 +203,11 @@ public class NexusWebSocketHandler extends TextWebSocketHandler {
         String json = objectMapper.writeValueAsString(msg);
         for (WebSocketSession s : room.getSessions().keySet()) {
             if (s.isOpen()) {
-                s.sendMessage(new TextMessage(json));
+                synchronized (s) {
+                    if (s.isOpen()) {
+                        s.sendMessage(new TextMessage(json));
+                    }
+                }
             }
         }
     }
@@ -200,8 +215,12 @@ public class NexusWebSocketHandler extends TextWebSocketHandler {
     private void broadcastExcept(WebSocketSession excluded, Room room, ServerMessage msg) throws IOException {
         String json = objectMapper.writeValueAsString(msg);
         for (WebSocketSession s : room.getSessions().keySet()) {
-            if (s.isOpen() && !s.getId().equals(excluded.getId())) {
-                s.sendMessage(new TextMessage(json));
+            if (s.isOpen() && (excluded == null || !s.getId().equals(excluded.getId()))) {
+                synchronized (s) {
+                    if (s.isOpen()) {
+                        s.sendMessage(new TextMessage(json));
+                    }
+                }
             }
         }
     }

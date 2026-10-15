@@ -102,8 +102,8 @@ public final class NexusCrypto {
         GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv);
         cipher.init(Cipher.ENCRYPT_MODE, sharedAesKey, spec);
 
-        // AAD binding: NEXUS-v2|roomCode|senderId|messageId|0|message
-        String canonicalAad = "NEXUS-v2|" + roomCode + "|" + senderId + "|" + messageId + "|0|message";
+        // Canonical AAD format matching Web Client & standard protocol
+        String canonicalAad = roomCode + ":" + senderId + ":" + messageId;
         cipher.updateAAD(canonicalAad.getBytes(StandardCharsets.UTF_8));
 
         byte[] ciphertext = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
@@ -124,13 +124,22 @@ public final class NexusCrypto {
 
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv);
-        cipher.init(Cipher.DECRYPT_MODE, sharedAesKey, spec);
 
-        String canonicalAad = "NEXUS-v2|" + roomCode + "|" + senderId + "|" + messageId + "|0|message";
-        cipher.updateAAD(canonicalAad.getBytes(StandardCharsets.UTF_8));
-
-        byte[] decrypted = cipher.doFinal(ciphertext);
-        return new String(decrypted, StandardCharsets.UTF_8);
+        try {
+            // Try standard canonical AAD: roomCode:senderId:messageId
+            cipher.init(Cipher.DECRYPT_MODE, sharedAesKey, spec);
+            String canonicalAad = roomCode + ":" + senderId + ":" + messageId;
+            cipher.updateAAD(canonicalAad.getBytes(StandardCharsets.UTF_8));
+            byte[] decrypted = cipher.doFinal(ciphertext);
+            return new String(decrypted, StandardCharsets.UTF_8);
+        } catch (GeneralSecurityException primaryEx) {
+            // Fallback for legacy format
+            cipher.init(Cipher.DECRYPT_MODE, sharedAesKey, spec);
+            String fallbackAad = "NEXUS-v2|" + roomCode + "|" + senderId + "|" + messageId + "|0|message";
+            cipher.updateAAD(fallbackAad.getBytes(StandardCharsets.UTF_8));
+            byte[] decrypted = cipher.doFinal(ciphertext);
+            return new String(decrypted, StandardCharsets.UTF_8);
+        }
     }
 
     public String getSessionFingerprint() {

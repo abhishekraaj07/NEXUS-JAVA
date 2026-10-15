@@ -37,4 +37,19 @@ public class NexusCryptoTest {
         String decrypted = bob.decrypt(enc.ciphertext, enc.iv, room, sender, msgId);
         assertEquals(plain, decrypted);
     }
+
+    @Test
+    public void testLegacyAadFallback() throws Exception {
+        NexusCrypto alice = new NexusCrypto();
+        NexusCrypto bob = new NexusCrypto();
+
+        alice.establishSharedSecret(bob.exportPublicKeyJwk());
+        bob.establishSharedSecret(alice.exportPublicKeyJwk());
+
+        // Test encryption with canonical AAD
+        String plain = "Payload via Canonical AAD";
+        NexusCrypto.EncryptedPayload enc = alice.encrypt(plain, "SEC01", "alice", "msg-99");
+        String dec = bob.decrypt(enc.ciphertext, enc.iv, "SEC01", "alice", "msg-99");
+        assertEquals(plain, dec);
+    }
 }

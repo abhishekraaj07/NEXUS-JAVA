@@ -798,18 +798,36 @@
       if (!sharedSecretKey) throw new Error('Shared secret key not established');
       const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
       const cipherBytes = Uint8Array.from(atob(ciphertextB64), c => c.charCodeAt(0));
-      const aad = new TextEncoder().encode(`${currentRoomCode}:${senderId}:${msgId}`);
 
-      const plainBuf = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv, additionalData: aad, tagLength: 128 },
-        sharedSecretKey,
-        cipherBytes
-      );
+      let plainBuf;
+      try {
+        const aad = new TextEncoder().encode(`${currentRoomCode}:${senderId}:${msgId}`);
+        plainBuf = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv, additionalData: aad, tagLength: 128 },
+          sharedSecretKey,
+          cipherBytes
+        );
+      } catch (err) {
+        // Fallback for legacy format
+        const fallbackAad = new TextEncoder().encode(`NEXUS-v2|${currentRoomCode}|${senderId}|${msgId}|0|message`);
+        plainBuf = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv, additionalData: fallbackAad, tagLength: 128 },
+          sharedSecretKey,
+          cipherBytes
+        );
+      }
 
-      return JSON.parse(new TextDecoder().decode(plainBuf));
+      const raw = new TextDecoder().decode(plainBuf);
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return { text: raw, kind: 'chat_message' };
+      }
     }
 
     // --- Room & WebSocket Management ---
+    let heartbeatTimer = null;
+
     async function handleCreateRoom() {
       myDisplayName = document.getElementById('nicknameInput').value.trim() || 'User';
       const base = getRelayBaseUrl();
@@ -843,6 +861,15 @@
 
       ws.onopen = async () => {
         document.getElementById('roomStatusDot').classList.add('connected');
+        
+        // Keep connection alive on cloud proxies (Render, Cloudflare, etc.)
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
+        heartbeatTimer = setInterval(() => {
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'ping' }));
+          }
+        }, 25000);
+
         // 1. Join room
         ws.send(JSON.stringify({
           type: 'join',
@@ -867,6 +894,7 @@
       };
 
       ws.onclose = () => {
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
         document.getElementById('roomStatusDot').classList.remove('connected');
         appendSystemMessage('🔌 Disconnected from relay server');
       };
@@ -901,6 +929,9 @@
           break;
         case 'message':
           handleIncomingCiphertext(data);
+          break;
+        case 'pong':
+          // Keep-alive heartbeat acknowledgement
           break;
         case 'error':
           alert('Room Error: ' + data.message);

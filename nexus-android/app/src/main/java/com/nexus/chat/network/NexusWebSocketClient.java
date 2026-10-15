@@ -18,7 +18,9 @@ public class NexusWebSocketClient extends WebSocketListener {
         void onClose();
     }
 
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .pingInterval(25, java.util.concurrent.TimeUnit.SECONDS)
+            .build();
     private final Gson gson = new Gson();
     private final String wsUrl;
     private final Listener listener;

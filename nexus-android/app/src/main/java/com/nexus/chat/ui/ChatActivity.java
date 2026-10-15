@@ -183,13 +183,27 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
         if (senderId.equals(participantId)) return;
         try {
             String plain = crypto.decrypt(ciphertext, iv, roomCode, senderId, messageId);
+            String displayText = plain;
+            try {
+                com.google.gson.JsonObject obj = gson.fromJson(plain, com.google.gson.JsonObject.class);
+                if (obj != null) {
+                    if (obj.has("isViewOnce") && obj.get("isViewOnce").getAsBoolean()) {
+                        displayText = "📷 [1× Ephemeral Photo Received]";
+                    } else if (obj.has("text")) {
+                        displayText = obj.get("text").getAsString();
+                    }
+                }
+            } catch (Exception ignored) {
+                // Raw text, use directly
+            }
+            final String finalText = displayText;
             runOnUiThread(() -> {
-                messages.add(new Message(messageId, senderId, "Peer", plain, timestamp, false, "delivered"));
+                messages.add(new Message(messageId, senderId, "Peer", finalText, timestamp, false, "delivered"));
                 messageAdapter.notifyItemInserted(messages.size() - 1);
                 rvMessages.scrollToPosition(messages.size() - 1);
             });
         } catch (Exception e) {
-            runOnUiThread(() -> Toast.makeText(this, "Decryption error", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> Toast.makeText(this, "Decryption error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
 
