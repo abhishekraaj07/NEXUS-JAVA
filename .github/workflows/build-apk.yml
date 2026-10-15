@@ -54,7 +54,7 @@ jobs:
             ## 🛡️ NEXUS Private Chat — v1.0.0 Release
 
             ### 🚀 Quick Access
-            * 🌐 **Live Web Chat (Instant Browser Access)**: [Launch Java Web App](https://nexus-backend-filg.onrender.com)
+            * 🌐 **Live Web Chat (Instant Browser Access)**: [Launch Java Web App](https://nexus-backend-f44m.onrender.com)
             * 📱 **Native Android App (APK)**: Download `NEXUS-Chat-v1.0.0.apk` below
             * 💻 **Self-Hosted Spring Boot Server**: Run locally on `http://localhost:8080/` via `./gradlew bootRun`
 

@@ -20,7 +20,7 @@
     <img src="https://img.shields.io/badge/Download%20Android%20App-v1.0.0%20APK-00C853?style=for-the-badge&logo=android&logoColor=white" alt="Download Android APK" />
   </a>
   &nbsp;&nbsp;
-  <a href="https://nexus-backend-filg.onrender.com" target="_blank">
+  <a href="https://nexus-backend-f44m.onrender.com" target="_blank">
     <img src="https://img.shields.io/badge/Open%20Live%20Java%20Web%20Chat-Launch%20Web-6366F1?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Launch Web App" />
   </a>
 </p>
@@ -32,9 +32,9 @@
 | Platform | Channel | Link | Notes |
 |---|---|---|---|
 | 📱 **Android Native App** | GitHub Releases | [📥 **Download APK (v1.0.0)**](https://github.com/abhishekraaj07/NEXUS-JAVA/releases/download/v1.0.0-apk/NEXUS-Chat-v1.0.0.apk) | Direct install, `FLAG_SECURE` screen privacy, zero webview |
-| 🌐 **Live Java Web Client** | Spring Boot Relay | [🚀 **Open Java Web App**](https://nexus-backend-filg.onrender.com) | Instant access in browser, hosted directly by Java backend |
+| 🌐 **Live Java Web Client** | Spring Boot Relay | [🚀 **Open Java Web App**](https://nexus-backend-f44m.onrender.com) | Instant access in browser, hosted directly by Java backend |
 | 💻 **Self-Hosted Web & Relay** | Local Java 21 | `http://localhost:8080/` | Run locally via `./gradlew bootRun` |
-| 📊 **Relay Health Status** | Spring Boot API | [⚡ **Inspect Status**](https://nexus-backend-filg.onrender.com/status) | Real-time JSON & HTML health monitor |
+| 📊 **Relay Health Status** | Spring Boot API | [⚡ **Inspect Status**](https://nexus-backend-f44m.onrender.com/status) | Real-time JSON & HTML health monitor |
 
 ---
 
@@ -183,7 +183,7 @@ The compiled debug APK will be generated at:
 `nexus-android/app/build/outputs/apk/debug/app-debug.apk`
 
 #### Connecting Android App to Backend:
-1. **Live Cloud Backend**: Enter `https://nexus-backend-filg.onrender.com` (already set by default).
+1. **Live Cloud Backend**: Enter `https://nexus-backend-f44m.onrender.com` (already set by default).
 2. **Android Emulator**: In the `RELAY SERVER URL` field, use `http://10.0.2.2:8080`.
 3. **Physical Phone on Wi-Fi**: Enter your host machine's local IP (e.g. `http://192.168.1.50:8080`).
 
