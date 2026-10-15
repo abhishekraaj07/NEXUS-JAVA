@@ -1,10 +1,6 @@
 # 🛡️ NEXUS Private Chat — Full Java Stack Edition
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/abhishekraaj07/NEXUS-JAVA/main/nexus-android/app/src/main/res/drawable/ic_nexus_shield.xml" width="90" alt="NEXUS Shield" />
-</p>
-
-<p align="center">
   <strong>Zero-Knowledge, Zero-Trace Ephemeral Chat Ecosystem in Pure Java & Web Standards</strong>
 </p>
 
@@ -17,12 +13,6 @@
   <img src="https://img.shields.io/badge/Security-E2EE%20(ECDH%20%2B%20AES--GCM)-blueviolet" alt="E2EE" />
   <img src="https://img.shields.io/badge/Storage-0%20Bytes%20Disk-crimson" alt="Zero Storage" />
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" />
-</p>
-
-<p align="center">
-  <a href="https://render.com/deploy?repo=https://github.com/abhishekraaj07/NEXUS-JAVA">
-    <img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render" />
-  </a>
 </p>
 
 ---
@@ -115,9 +105,7 @@ NEXUS-JAVA/
 │           │   ├── network/     # NexusApiClient, NexusWebSocketClient
 │           │   └── ui/          # MainActivity, ChatActivity, MessageAdapter
 │           └── res/layout/      # activity_main, activity_chat, item_message
-├── apprunner.yaml               # AWS App Runner Deployment Spec
-├── docker-compose.yml           # Local multi-container launch
-└── render.yaml                  # 1-Click Render Cloud Blueprint
+└── docker-compose.yml           # Local multi-container launch
 ```
 
 ---
@@ -159,7 +147,7 @@ The compiled debug APK will be generated at:
 #### Connecting Android App to Backend:
 1. **Android Emulator**: In the `RELAY SERVER URL` field on the app's start screen, use `http://10.0.2.2:8080`.
 2. **Physical Phone on Wi-Fi**: Enter your host machine's local IP (e.g. `http://192.168.1.50:8080`).
-3. **Live Cloud Server**: Enter your deployed cloud domain (e.g. `https://your-nexus.onrender.com`).
+3. **Live Server**: Enter your deployed domain (e.g. `https://your-domain.com`).
 
 ---
 
@@ -182,21 +170,6 @@ Connect at: `ws://<host>/api/rooms/{roomCode}/ws` (or `wss://` over SSL)
 * **Ciphertext Message**: `{"type":"message", "roomCode":"...", "senderId":"...", "messageId":"...", "iv":"...", "ciphertext":"...", "timestamp":...}`
 * **Typing Indicator**: `{"type":"typing", "roomCode":"...", "senderId":"...", "isTyping":true}`
 * **Heartbeat**: Client sends `{"type":"ping"}`, server returns `{"type":"pong"}`.
-
----
-
-## ☁️ Cloud Deployment
-
-### 1-Click Render Deployment
-Click the button below to launch on Render with zero configuration:
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/abhishekraaj07/NEXUS-JAVA)
-
-### Docker Deployment
-```bash
-docker build -t nexus-backend ./nexus-backend
-docker run -p 8080:8080 nexus-backend
-```
 
 ---
 
