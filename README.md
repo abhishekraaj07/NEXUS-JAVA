@@ -32,7 +32,9 @@
 | Platform | Channel | Link | Notes |
 |---|---|---|---|
 | 📱 **Android Native App** | GitHub Releases | [📥 **Download APK (v1.0.0)**](https://github.com/abhishekraaj07/NEXUS-JAVA/releases/download/v1.0.0-apk/NEXUS-Chat-v1.0.0.apk) | Direct install, `FLAG_SECURE` screen privacy, zero webview |
-| 🌐 **Live Java Web Client** | Spring Boot Relay | [🚀 **Open Java Web App**](https://nexus-backend-f44m.onrender.com) | Instant access in browser, hosted directly by Java backend |
+| 🌐 **Live Web App (Edge CDN)** | GitHub Pages | [🚀 **Open on GitHub Pages**](https://abhishekraaj07.github.io/NEXUS-JAVA/) | 0ms cold-start, 100% free uptime via global CDN |
+| ☁️ **Live Java Web Client** | Spring Boot Relay | [🚀 **Open Java Web App**](https://nexus-backend-f44m.onrender.com) | Instant browser access, 24/7 keep-alive monitor |
+| 🛡️ **Cloudflare Quick Tunnel** | 1-Click Batch | Run `launch-with-cloudflare.bat` | 100% free public HTTPS/WSS tunnel for local Java relay |
 | 💻 **Self-Hosted Web & Relay** | Local Java 21 | `http://localhost:8080/` | Run locally via `./gradlew bootRun` |
 | 📊 **Relay Health Status** | Spring Boot API | [⚡ **Inspect Status**](https://nexus-backend-f44m.onrender.com/status) | Real-time JSON & HTML health monitor |
 

@@ -690,9 +690,14 @@
     let myParticipantId = 'user_' + crypto.randomUUID().slice(0, 8);
     let myDisplayName = 'User';
 
+    const DEFAULT_CLOUD_RELAY = 'https://nexus-backend-f44m.onrender.com';
+
     function getRelayBaseUrl() {
       const stored = localStorage.getItem('nexus_relay_url');
       if (stored) return stored.replace(/\/+$/, '');
+      if (window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:') {
+        return DEFAULT_CLOUD_RELAY;
+      }
       return '';
     }
 

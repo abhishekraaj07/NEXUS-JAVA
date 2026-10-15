@@ -1,0 +1,26 @@
+name: Keep-Alive 24/7 Relay Monitor
+
+on:
+  schedule:
+    # Run every 10 minutes to prevent Render from idling/sleeping
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/keep-alive.yml'
+
+jobs:
+  ping-relay:
+    name: Keep-Alive Ping
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render Cloud Relay
+        run: |
+          echo "Pinging NEXUS Java Relay to maintain 24/7 uptime..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://nexus-backend-f44m.onrender.com/api/status || echo "000")
+          echo "Relay returned HTTP Status: $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "SUCCESS: NEXUS Cloud Relay is active, warm, and ready for instant connections."
+          else
+            echo "NOTICE: Wake-up signal dispatched to cloud relay."
+          fi
