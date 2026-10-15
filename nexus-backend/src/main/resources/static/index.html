@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS - Zero-Knowledge Private Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b10;
+      --surface: #10141f;
+      --card: #141926;
+      --border: rgba(99, 102, 241, 0.18);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      --accent: #22d3ee;
+      --accent-glow: rgba(34, 211, 238, 0.3);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.22), transparent),
+        radial-gradient(ellipse 60% 40% at 50% 120%, rgba(34, 211, 238, 0.12), transparent);
+    }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Top Nav */
+    header {
+      height: 64px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(16, 20, 31, 0.85);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--primary-glow);
+    }
+    .brand-icon svg { width: 20px; height: 20px; fill: white; }
+    .brand-title {
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+    }
+
+    /* Container Views */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Lobby Card */
+    .lobby-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7), 0 0 30px rgba(99,102,241,0.15);
+    }
+    .lobby-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .lobby-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .lobby-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .form-input {
+      width: 100%;
+      height: 46px;
+      background: rgba(9, 11, 16, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 16px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 46px;
+      width: 100%;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: white;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #7c3aed, var(--primary));
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .btn-danger {
+      background: rgba(239,68,68,0.15);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+    .btn-danger:hover {
+      background: rgba(239,68,68,0.3);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0;
+      color: var(--text-dim);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+    }
+    .divider span { padding: 0 12px; }
+
+    /* Chat View */
+    .chat-view {
+      display: none;
+      width: 100%;
+      max-width: 860px;
+      height: calc(100vh - 100px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      flex-direction: column;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 14px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .room-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .room-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--accent);
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      padding: 4px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warning);
+      display: inline-block;
+    }
+    .status-dot.connected {
+      background: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    .chat-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* Message Timeline */
+    .timeline {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .msg-group {
+      display: flex;
+      flex-direction: column;
+      max-width: 75%;
+    }
+    .msg-group.own {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+    .msg-group.peer {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .msg-bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+      position: relative;
+    }
+    .msg-group.own .msg-bubble {
+      background: linear-gradient(135deg, #4f46e5, var(--primary));
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-group.peer .msg-bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .view-once-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--warning);
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 2px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 6px;
+    }
+
+    .system-msg {
+      align-self: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px dashed var(--border);
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin: 8px 0;
+    }
+
+    /* Input Bar */
+    .chat-input-bar {
+      padding: 14px 20px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .input-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: rgba(9, 11, 16, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 12px;
+    }
+    .input-wrapper input {
+      flex: 1;
+      height: 44px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .timer-select {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      cursor: pointer;
+      padding-right: 6px;
+    }
+    .timer-select option {
+      background: var(--card);
+      color: var(--text);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .fingerprint-box {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      padding: 14px;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      font-size: 15px;
+      text-align: center;
+      letter-spacing: 0.1em;
+      margin: 16px 0;
+      user-select: all;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header>
+    <a href="#" class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5zm0 18c-3.75-1-6.5-4.83-6.91-9h13.82c-.41 4.17-3.16 8-6.91 9z"/></svg>
+      </div>
+      <div>
+        <div class="brand-title">NEXUS</div>
+      </div>
+      <span class="brand-badge">E2EE Java Edition</span>
+    </a>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <button class="icon-btn" onclick="openServerConfigModal()" title="Relay Config">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <a href="/api/status" target="_blank" class="icon-btn" title="API Status">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Lobby Card -->
+    <div id="lobbyView" class="lobby-card">
+      <div class="lobby-header">
+        <h1 class="lobby-title">Private E2EE Chat</h1>
+        <p class="lobby-desc">Zero-knowledge ephemeral room relay. Messages are encrypted client-side with ECDH P-256 + AES-256-GCM. Exactly 0 bytes stored.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your Nickname</label>
+        <input type="text" id="nicknameInput" class="form-input" placeholder="e.g. Neo" value="User">
+      </div>
+
+      <button class="btn btn-primary" onclick="handleCreateRoom()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create Encrypted Room
+      </button>
+
+      <div class="divider"><span>OR JOIN EXISTING</span></div>
+
+      <div class="form-group">
+        <label class="form-label">Room Code</label>
+        <input type="text" id="roomCodeInput" class="form-input font-mono" placeholder="e.g. NEX-4928" style="text-transform: uppercase;">
+      </div>
+
+      <button class="btn btn-secondary" onclick="handleJoinRoom()">
+        Join Private Room &rarr;
+      </button>
+    </div>
+
+    <!-- Active Chat View -->
+    <div id="chatView" class="chat-view">
+      <div class="chat-header">
+        <div class="room-info">
+          <span id="roomStatusDot" class="status-dot"></span>
+          <span id="roomCodeBadge" class="room-pill" onclick="copyRoomLink()" title="Click to copy invite link">ROOM: ------</span>
+          <span id="peerStatus" style="font-size:12px; color:var(--text-muted);">Waiting for peer...</span>
+        </div>
+        <div class="chat-tools">
+          <button class="icon-btn" onclick="openFingerprintModal()" title="Verify E2EE Fingerprint">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </button>
+          <button class="icon-btn" onclick="copyRoomLink()" title="Share Link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          </button>
+          <button class="icon-btn" onclick="burnRoom()" title="Burn Room (Self Destruct)" style="color:#f87171;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          </button>
+          <button class="icon-btn" onclick="leaveRoom()" title="Leave Room">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div id="timeline" class="timeline"></div>
+
+      <!-- Input Bar -->
+      <div class="chat-input-bar">
+        <!-- Ephemeral Media Button -->
+        <input type="file" id="mediaFileInput" accept="image/*" style="display:none;" onchange="handleMediaSelect(event)">
+        <button class="icon-btn" onclick="document.getElementById('mediaFileInput').click()" title="Send 1× Ephemeral Photo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </button>
+
+        <!-- Message Input -->
+        <div class="input-wrapper">
+          <input type="text" id="messageInput" placeholder="Type an encrypted message..." onkeydown="if(event.key==='Enter') sendMessage()">
+          <select id="ttlTimer" class="timer-select" title="Disappearing Message Timer">
+            <option value="0">Timer: Off</option>
+            <option value="5000">5s</option>
+            <option value="10000">10s</option>
+            <option value="30000">30s</option>
+            <option value="60000">1m</option>
+          </select>
+        </div>
+
+        <!-- Send Button -->
+        <button class="btn btn-primary" onclick="sendMessage()" style="width: auto; padding: 0 18px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Security Fingerprint Modal -->
+  <div id="fingerprintModal" class="modal-backdrop">
+    <div class="modal-card">
+      <h3 class="modal-title">🔐 E2EE Security Fingerprint</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">
+        Verify this fingerprint with your peer out-of-band (voice call or in person). If both match, no third party or server is intercepting your conversation.
+      </p>
+      <div id="fingerprintDisplay" class="fingerprint-box">COMPUTING...</div>
+      <button class="btn btn-primary" onclick="closeFingerprintModal()">I Have Verified</button>
+    </div>
+  </div>
+
+  <!-- Server Relay Config Modal -->
+  <div id="serverModal" class="modal-backdrop">
+    <div class="modal-card">
+      <h3 class="modal-title">⚙️ Relay Server Endpoint</h3>
+      <p style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">
+        Leave blank to use this local Spring Boot server (<span class="font-mono">origin</span>), or configure a remote Render/Cloud URL.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Server Base URL</label>
+        <input type="text" id="customServerInput" class="form-input" placeholder="e.g. https://nexus-backend.onrender.com">
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-secondary" onclick="resetServerConfig()">Reset to Default</button>
+        <button class="btn btn-primary" onclick="saveServerConfig()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * NEXUS Zero-Knowledge Cryptographic Engine & Duplex WebSocket Relay Client
+     */
+    const PROTOCOL_CONTEXT = 'NEXUS-E2EE-v1';
+    let localKeyPair = null;
+    let sharedSecretKey = null;
+    let sessionFingerprint = null;
+    let ws = null;
+    let currentRoomCode = null;
+    let myParticipantId = 'user_' + crypto.randomUUID().slice(0, 8);
+    let myDisplayName = 'User';
+
+    function getRelayBaseUrl() {
+      const stored = localStorage.getItem('nexus_relay_url');
+      if (stored) return stored.replace(/\/+$/, '');
+      return '';
+    }
+
+    function getWsUrl(roomCode) {
+      const custom = getRelayBaseUrl();
+      if (custom) {
+        const wsProto = custom.startsWith('https') ? 'wss:' : 'ws:';
+        const host = custom.replace(/^https?:\/\//, '');
+        return `${wsProto}//${host}/api/rooms/${roomCode}/ws`;
+      }
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      return `${proto}//${window.location.host}/api/rooms/${roomCode}/ws`;
+    }
+
+    // --- Web Crypto Core (ECDH NIST P-256 + HKDF + AES-256-GCM) ---
+    async function initCrypto() {
+      localKeyPair = await crypto.subtle.generateKey(
+        { name: 'ECDH', namedCurve: 'P-256' },
+        true,
+        ['deriveKey', 'deriveBits']
+      );
+    }
+
+    async function exportMyPublicKeyJwk() {
+      const jwk = await crypto.subtle.exportKey('jwk', localKeyPair.publicKey);
+      return {
+        kty: jwk.kty,
+        crv: jwk.crv,
+        x: jwk.x,
+        y: jwk.y
+      };
+    }
+
+    async function establishSharedSecret(peerJwk) {
+      const peerKey = await crypto.subtle.importKey(
+        'jwk',
+        peerJwk,
+        { name: 'ECDH', namedCurve: 'P-256' },
+        true,
+        []
+      );
+
+      const rawBits = await crypto.subtle.deriveBits(
+        { name: 'ECDH', public: peerKey },
+        localKeyPair.privateKey,
+        256
+      );
+
+      // HKDF-SHA-256 expansion
+      const hkdfKey = await crypto.subtle.importKey(
+        'raw',
+        rawBits,
+        { name: 'HKDF' },
+        false,
+        ['deriveKey']
+      );
+
+      sharedSecretKey = await crypto.subtle.deriveKey(
+        {
+          name: 'HKDF',
+          hash: 'SHA-256',
+          salt: new Uint8Array(16),
+          info: new TextEncoder().encode(PROTOCOL_CONTEXT)
+        },
+        hkdfKey,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+
+      // Deterministic Fingerprint
+      const myJwk = await exportMyPublicKeyJwk();
+      const kA = `${myJwk.x}:${myJwk.y}`;
+      const kB = `${peerJwk.x}:${peerJwk.y}`;
+      const combined = [kA, kB].sort().join('|');
+      const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(combined));
+      const hex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      sessionFingerprint = `${hex.slice(0,4)}-${hex.slice(4,8)}-${hex.slice(8,12)}`;
+      
+      document.getElementById('fingerprintDisplay').textContent = sessionFingerprint;
+      appendSystemMessage(`🔒 E2EE Session Established. Fingerprint: ${sessionFingerprint}`);
+    }
+
+    async function encryptPayload(plainObj, msgId) {
+      if (!sharedSecretKey) throw new Error('Shared secret key not established');
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const aad = new TextEncoder().encode(`${currentRoomCode}:${myParticipantId}:${msgId}`);
+      const plainBytes = new TextEncoder().encode(JSON.stringify(plainObj));
+
+      const cipherBuf = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv, additionalData: aad, tagLength: 128 },
+        sharedSecretKey,
+        plainBytes
+      );
+
+      return {
+        iv: btoa(String.fromCharCode(...iv)),
+        ciphertext: btoa(String.fromCharCode(...new Uint8Array(cipherBuf)))
+      };
+    }
+
+    async function decryptPayload(ciphertextB64, ivB64, senderId, msgId) {
+      if (!sharedSecretKey) throw new Error('Shared secret key not established');
+      const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+      const cipherBytes = Uint8Array.from(atob(ciphertextB64), c => c.charCodeAt(0));
+      const aad = new TextEncoder().encode(`${currentRoomCode}:${senderId}:${msgId}`);
+
+      const plainBuf = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv, additionalData: aad, tagLength: 128 },
+        sharedSecretKey,
+        cipherBytes
+      );
+
+      return JSON.parse(new TextDecoder().decode(plainBuf));
+    }
+
+    // --- Room & WebSocket Management ---
+    async function handleCreateRoom() {
+      myDisplayName = document.getElementById('nicknameInput').value.trim() || 'User';
+      const base = getRelayBaseUrl();
+      try {
+        const res = await fetch(`${base}/api/rooms`, { method: 'POST' });
+        if (!res.ok) throw new Error('Failed to create room on server');
+        const data = await res.json();
+        connectToRoom(data.roomCode);
+      } catch (e) {
+        alert('Server connection error: ' + e.message);
+      }
+    }
+
+    function handleJoinRoom() {
+      myDisplayName = document.getElementById('nicknameInput').value.trim() || 'User';
+      const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+      if (code.length < 5) return alert('Enter a valid room code');
+      connectToRoom(code);
+    }
+
+    async function connectToRoom(roomCode) {
+      currentRoomCode = roomCode;
+      await initCrypto();
+
+      document.getElementById('lobbyView').style.display = 'none';
+      document.getElementById('chatView').style.display = 'flex';
+      document.getElementById('roomCodeBadge').textContent = `ROOM: ${roomCode}`;
+
+      const wsUrl = getWsUrl(roomCode);
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = async () => {
+        document.getElementById('roomStatusDot').classList.add('connected');
+        // 1. Join room
+        ws.send(JSON.stringify({
+          type: 'join',
+          roomCode: currentRoomCode,
+          participantId: myParticipantId,
+          displayName: myDisplayName
+        }));
+
+        // 2. Announce ECDH Public Key
+        const pubKey = await exportMyPublicKeyJwk();
+        ws.send(JSON.stringify({
+          type: 'key-exchange',
+          roomCode: currentRoomCode,
+          senderId: myParticipantId,
+          publicKey: pubKey
+        }));
+      };
+
+      ws.onmessage = async (evt) => {
+        const data = JSON.parse(evt.data);
+        handleServerPacket(data);
+      };
+
+      ws.onclose = () => {
+        document.getElementById('roomStatusDot').classList.remove('connected');
+        appendSystemMessage('🔌 Disconnected from relay server');
+      };
+    }
+
+    async function handleServerPacket(data) {
+      switch (data.type) {
+        case 'room-state':
+          if (data.participantCount > 1) {
+            document.getElementById('peerStatus').textContent = 'Peer online';
+          }
+          break;
+        case 'peer-joined':
+          document.getElementById('peerStatus').textContent = `${data.participant.displayName} joined`;
+          appendSystemMessage(`👋 ${data.participant.displayName} connected`);
+          // Re-send our public key
+          const pubKey = await exportMyPublicKeyJwk();
+          ws.send(JSON.stringify({
+            type: 'key-exchange',
+            roomCode: currentRoomCode,
+            senderId: myParticipantId,
+            publicKey: pubKey
+          }));
+          break;
+        case 'peer-left':
+          document.getElementById('peerStatus').textContent = 'Peer disconnected';
+          appendSystemMessage(`🚪 ${data.displayName || 'Peer'} left the room`);
+          break;
+        case 'key-exchange':
+          await establishSharedSecret(data.publicKey);
+          document.getElementById('peerStatus').textContent = '🔒 E2EE Active';
+          break;
+        case 'message':
+          handleIncomingCiphertext(data);
+          break;
+        case 'error':
+          alert('Room Error: ' + data.message);
+          break;
+      }
+    }
+
+    async function handleIncomingCiphertext(packet) {
+      if (packet.senderId === myParticipantId) return;
+      try {
+        const payload = await decryptPayload(packet.ciphertext, packet.iv, packet.senderId, packet.messageId);
+        renderIncomingMessage(payload, packet.messageId, packet.timestamp);
+      } catch (e) {
+        appendSystemMessage('⚠️ Decryption failed (invalid key or MAC mismatch)');
+      }
+    }
+
+    // --- Message Sending & UI Rendering ---
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      if (!sharedSecretKey) {
+        return alert('Cannot send message: Peer has not joined or key exchange is in progress.');
+      }
+
+      const msgId = crypto.randomUUID();
+      const ttl = parseInt(document.getElementById('ttlTimer').value);
+      const payload = {
+        version: 2,
+        kind: 'chat_message',
+        messageId: msgId,
+        text: text,
+        ttlMs: ttl > 0 ? ttl : undefined
+      };
+
+      const encrypted = await encryptPayload(payload, msgId);
+      ws.send(JSON.stringify({
+        type: 'message',
+        roomCode: currentRoomCode,
+        senderId: myParticipantId,
+        messageId: msgId,
+        iv: encrypted.iv,
+        ciphertext: encrypted.ciphertext,
+        timestamp: Date.now()
+      }));
+
+      renderOwnMessage(text, msgId, ttl);
+      input.value = '';
+    }
+
+    function renderOwnMessage(text, msgId, ttl) {
+      const timeline = document.getElementById('timeline');
+      const group = document.createElement('div');
+      group.className = 'msg-group own';
+      group.id = `msg-${msgId}`;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.textContent = text;
+
+      const meta = document.createElement('div');
+      meta.className = 'msg-meta';
+      meta.innerHTML = `<span>Just now</span> &bull; <span style="color:var(--accent);">Sent ✓</span>`;
+
+      group.appendChild(bubble);
+      group.appendChild(meta);
+      timeline.appendChild(group);
+      timeline.scrollTop = timeline.scrollHeight;
+
+      if (ttl > 0) {
+        setTimeout(() => {
+          group.remove();
+        }, ttl);
+      }
+    }
+
+    function renderIncomingMessage(payload, msgId, timestamp) {
+      const timeline = document.getElementById('timeline');
+      const group = document.createElement('div');
+      group.className = 'msg-group peer';
+      group.id = `msg-${msgId}`;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+
+      if (payload.isViewOnce && payload.attachment) {
+        const btn = document.createElement('div');
+        btn.className = 'view-once-badge';
+        btn.innerHTML = `👁️ View 1× Photo (Self-Destructs)`;
+        btn.onclick = () => {
+          const w = window.open('');
+          w.document.write(`<img src="${payload.attachment.dataUrl}" style="max-width:100%;height:auto;background:#000;">`);
+          btn.textContent = '❌ Photo destroyed';
+          btn.style.pointerEvents = 'none';
+          btn.style.opacity = '0.5';
+        };
+        bubble.appendChild(btn);
+      } else {
+        bubble.textContent = payload.text || '[Media]';
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'msg-meta';
+      meta.innerHTML = `<span>${new Date(timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>`;
+
+      group.appendChild(bubble);
+      group.appendChild(meta);
+      timeline.appendChild(group);
+      timeline.scrollTop = timeline.scrollHeight;
+
+      if (payload.ttlMs && payload.ttlMs > 0) {
+        setTimeout(() => {
+          group.remove();
+        }, payload.ttlMs);
+      }
+    }
+
+    function handleMediaSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!sharedSecretKey) {
+        return alert('Cannot send photo: Peer has not joined or key exchange is in progress.');
+      }
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const msgId = crypto.randomUUID();
+        const payload = {
+          version: 2,
+          kind: 'chat_message',
+          messageId: msgId,
+          isViewOnce: true,
+          attachment: {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            dataUrl: reader.result
+          }
+        };
+
+        const encrypted = await encryptPayload(payload, msgId);
+        ws.send(JSON.stringify({
+          type: 'message',
+          roomCode: currentRoomCode,
+          senderId: myParticipantId,
+          messageId: msgId,
+          iv: encrypted.iv,
+          ciphertext: encrypted.ciphertext,
+          timestamp: Date.now()
+        }));
+
+        renderOwnMessage('📷 [1× Ephemeral Photo Sent]', msgId, 0);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function appendSystemMessage(text) {
+      const timeline = document.getElementById('timeline');
+      const div = document.createElement('div');
+      div.className = 'system-msg';
+      div.textContent = text;
+      timeline.appendChild(div);
+      timeline.scrollTop = timeline.scrollHeight;
+    }
+
+    function copyRoomLink() {
+      const url = `${window.location.origin}/?room=${currentRoomCode}`;
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Room Invite Link copied to clipboard:\n' + url);
+      });
+    }
+
+    function burnRoom() {
+      if (confirm('Are you sure you want to BURN this room? All cryptographic keys will be shredded immediately.')) {
+        if (ws) ws.close();
+        sharedSecretKey = null;
+        localKeyPair = null;
+        window.location.href = '/';
+      }
+    }
+
+    function leaveRoom() {
+      if (ws) ws.close();
+      window.location.href = '/';
+    }
+
+    function openFingerprintModal() {
+      document.getElementById('fingerprintModal').style.display = 'flex';
+    }
+    function closeFingerprintModal() {
+      document.getElementById('fingerprintModal').style.display = 'none';
+    }
+
+    function openServerConfigModal() {
+      document.getElementById('customServerInput').value = getRelayBaseUrl();
+      document.getElementById('serverModal').style.display = 'flex';
+    }
+    function saveServerConfig() {
+      const val = document.getElementById('customServerInput').value.trim();
+      if (val) localStorage.setItem('nexus_relay_url', val);
+      else localStorage.removeItem('nexus_relay_url');
+      document.getElementById('serverModal').style.display = 'none';
+      alert('Relay configuration saved.');
+    }
+    function resetServerConfig() {
+      localStorage.removeItem('nexus_relay_url');
+      document.getElementById('serverModal').style.display = 'none';
+      alert('Reset to local origin.');
+    }
+
+    // Auto-fill from query param
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const room = params.get('room');
+      if (room) {
+        document.getElementById('roomCodeInput').value = room.toUpperCase();
+      }
+    });
+  </script>
+</body>
+</html>

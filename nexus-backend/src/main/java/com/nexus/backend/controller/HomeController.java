@@ -14,8 +14,8 @@ public class HomeController {
 
     private final Instant startTime = Instant.now();
 
-    @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<String> index() {
+    @GetMapping(value = "/status", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> statusPage() {
         String html = """
             <!DOCTYPE html>
             <html lang="en">

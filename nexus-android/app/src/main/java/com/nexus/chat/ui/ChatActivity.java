@@ -2,6 +2,7 @@ package com.nexus.chat.ui;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,9 +20,11 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
     private String roomCode;
     private String displayName;
     private String participantId;
+    private String serverUrl;
     private NexusCrypto crypto;
     private NexusWebSocketClient wsClient;
     private final List<Message> messages = new ArrayList<>();
+    private MessageAdapter messageAdapter;
     private final Gson gson = new Gson();
 
     private TextView tvRoomCode;
@@ -32,10 +35,21 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Security feature: Block screenshots & screen recording
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE
+        );
+
         setContentView(R.layout.activity_chat);
 
         roomCode = getIntent().getStringExtra("ROOM_CODE");
         displayName = getIntent().getStringExtra("DISPLAY_NAME");
+        serverUrl = getIntent().getStringExtra("SERVER_URL");
+        if (serverUrl == null || serverUrl.isEmpty()) {
+            serverUrl = "http://10.0.2.2:8080";
+        }
         participantId = "user_" + UUID.randomUUID().toString().substring(0, 8);
 
         tvRoomCode = findViewById(R.id.tv_room_code);
@@ -47,7 +61,10 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
 
         tvRoomCode.setText("ROOM: " + roomCode);
 
+        // Setup RecyclerView & Adapter
+        messageAdapter = new MessageAdapter(messages);
         rvMessages.setLayoutManager(new LinearLayoutManager(this));
+        rvMessages.setAdapter(messageAdapter);
 
         try {
             crypto = new NexusCrypto();
@@ -57,7 +74,10 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
             return;
         }
 
-        String wsUrl = "wss://nexus-backend-filg.onrender.com/api/rooms/" + roomCode + "/ws";
+        // Convert HTTP serverUrl to WebSocket URL
+        String wsBase = serverUrl.replaceFirst("(?i)^http:", "ws:").replaceFirst("(?i)^https:", "wss:");
+        String wsUrl = wsBase.replaceAll("/+$", "") + "/api/rooms/" + roomCode + "/ws";
+
         wsClient = new NexusWebSocketClient(wsUrl, this);
         wsClient.connect();
 
@@ -91,18 +111,20 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
             wsClient.send(packet);
 
             messages.add(new Message(msgId, participantId, displayName, text, System.currentTimeMillis(), true, "sent"));
+            messageAdapter.notifyItemInserted(messages.size() - 1);
+            rvMessages.scrollToPosition(messages.size() - 1);
+
             etMessage.setText("");
-            Toast.makeText(this, "Sent: " + text, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Toast.makeText(this, "Encryption failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void showFingerprintDialog() {
-        String fp = crypto.getSessionFingerprint() != null ? crypto.getSessionFingerprint() : "NOT CONNECTED";
+        String fp = crypto.getSessionFingerprint() != null ? crypto.getSessionFingerprint() : "WAITING FOR PEER...";
         new AlertDialog.Builder(this)
-                .setTitle("Security Fingerprint")
-                .setMessage("Compare this fingerprint with your peer through a trusted channel:\n\n" + fp + "\n\nBoth participants must see the exact same fingerprint.")
+                .setTitle("🔐 E2EE Security Fingerprint")
+                .setMessage("Compare this fingerprint with your peer:\n\n" + fp + "\n\nIf both match, no server or intermediary can read your conversation.")
                 .setPositiveButton("VERIFY", null)
                 .show();
     }
@@ -149,7 +171,7 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
             crypto.establishSharedSecret(peerJwk);
             runOnUiThread(() -> {
                 btnFingerprint.setText("SECURE (" + crypto.getSessionFingerprint() + ")");
-                Toast.makeText(this, "E2EE Established!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "E2EE Handshake Established!", Toast.LENGTH_SHORT).show();
             });
         } catch (Exception e) {
             runOnUiThread(() -> Toast.makeText(this, "Key exchange failed", Toast.LENGTH_SHORT).show());
@@ -163,7 +185,8 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
             String plain = crypto.decrypt(ciphertext, iv, roomCode, senderId, messageId);
             runOnUiThread(() -> {
                 messages.add(new Message(messageId, senderId, "Peer", plain, timestamp, false, "delivered"));
-                Toast.makeText(this, "Peer: " + plain, Toast.LENGTH_SHORT).show();
+                messageAdapter.notifyItemInserted(messages.size() - 1);
+                rvMessages.scrollToPosition(messages.size() - 1);
             });
         } catch (Exception e) {
             runOnUiThread(() -> Toast.makeText(this, "Decryption error", Toast.LENGTH_SHORT).show());
@@ -172,13 +195,15 @@ public class ChatActivity extends AppCompatActivity implements NexusWebSocketCli
 
     @Override
     public void onTyping(boolean isTyping) {}
+
     @Override
     public void onError(String error) {
         runOnUiThread(() -> Toast.makeText(this, error, Toast.LENGTH_SHORT).show());
     }
+
     @Override
     public void onClose() {
-        runOnUiThread(() -> Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show());
+        runOnUiThread(() -> Toast.makeText(this, "Disconnected from relay", Toast.LENGTH_SHORT).show());
     }
 
     @Override
